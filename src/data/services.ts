@@ -80,4 +80,4 @@ export const zones: Zone[] = [
   },
 ];
 
-export const rub = (n: number) => `${n.toLocaleString("ru-RU")} ₽`;
+export const rub = (n: number) => `от\u00a0${n.toLocaleString("ru-RU")}\u00a0₽`;
