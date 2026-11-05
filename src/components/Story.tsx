@@ -5,6 +5,7 @@ import { rub, zones, type Zone } from "@/data/services";
 
 const FRAMES = 121;
 const STAGE_AT = 0.94; // доля скролла, после которой включается интерактивная сцена
+const READY_AT = 0.35; // остальные кадры догружаются в фоне
 const CLIPS = ["idle", ...zones.flatMap((z) => [z.clip, `${z.clip}_r`])];
 
 const fade = (p: number, a: number, b: number, c: number, d: number) =>
@@ -194,7 +195,7 @@ export default function Story() {
     else vids.forEach((v) => { if (v.current) { v.current.style.opacity = "0"; v.current.pause(); } });
   }, [stage, play]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const ready = loaded >= 1;
+  const ready = loaded >= READY_AT;
 
   return (
     <>
@@ -222,8 +223,8 @@ export default function Story() {
               <button className="link" onClick={() => startEngine(false)}>Войти без звука</button>
             </>
           ) : (
-            <div className="bar" role="progressbar" aria-valuenow={Math.round(loaded * 100)}>
-              <i style={{ width: `${loaded * 100}%` }} />
+            <div className="bar" role="progressbar" aria-valuenow={Math.round((loaded / READY_AT) * 100)}>
+              <i style={{ width: `${Math.min(loaded / READY_AT, 1) * 100}%` }} />
             </div>
           )}
         </div>

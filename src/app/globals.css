@@ -154,7 +154,7 @@ h2 { font-size: clamp(26px, 3.6vw, 44px); }
   .pin-btn { width: 30px; height: 30px; }
   .pin-btn span { display: none; }
   .panel .row .btn { flex: 1; }
-  .panel { top: calc(13svh + 72vw); bottom: 0; left: 0; right: 0; width: auto; border-radius: 12px 12px 0 0; border-width: 2px 0 0; animation-name: sheet; }
+  .panel { background: var(--bg-2); top: calc(13svh + 72vw); bottom: 0; left: 0; right: 0; width: auto; border-radius: 12px 12px 0 0; border-width: 2px 0 0; animation-name: sheet; }
   .stage-ui { inset: calc(13svh + 86vw) 0 auto; }
   .rail { flex-direction: column; width: 100%; padding: 0 8px; }
   .rail button { min-height: 52px; text-align: left; }
