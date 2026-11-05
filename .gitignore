@@ -6,3 +6,4 @@ assets-src
 .DS_Store
 next-env.d.ts
 .env*
+*.tsbuildinfo
