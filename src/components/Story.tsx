@@ -4,6 +4,7 @@ import { site } from "@/data/site";
 import { rub, zones, type Zone } from "@/data/services";
 
 const FRAMES = 121;
+const LAST = FRAMES - 1;
 const STAGE_AT = 0.94; // доля скролла, после которой включается интерактивная сцена
 const READY_AT = 0.35; // остальные кадры догружаются в фоне
 const CLIPS = ["idle", ...zones.flatMap((z) => [z.clip, `${z.clip}_r`])];
@@ -32,17 +33,23 @@ export default function Story() {
   const section = useRef<HTMLElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const fog = useRef<HTMLVideoElement>(null);
-  const vids = [useRef<HTMLVideoElement>(null), useRef<HTMLVideoElement>(null)];
+  const vidA = useRef<HTMLVideoElement>(null);
+  const vidB = useRef<HTMLVideoElement>(null);
   const beats = useRef<(HTMLDivElement | null)[]>([]);
   const frames = useRef<HTMLImageElement[]>([]);
-  const lastFrame = useRef(-1);
+  const drawn = useRef(-1);
+  const shown = useRef(0); // кадр на экране, плавно догоняет цель
+  const target = useRef(0);
+  const raf = useRef(0);
   const blobs = useRef<Record<string, string>>({});
   const front = useRef(0);
   const current = useRef<Zone | null>(null);
   const busy = useRef(false);
+  const stageOn = useRef(false);
+  const session = useRef(0); // растёт при выходе из сцены, отменяет всё, что ещё в полёте
+  const release = useRef<(() => void) | null>(null);
   const audio = useRef<{ ctx: AudioContext; gain: GainNode } | null>(null);
   const muted = useRef(false);
-  const progress = useRef(0);
 
   const [loaded, setLoaded] = useState(0);
   const [gate, setGate] = useState(true);
@@ -51,23 +58,37 @@ export default function Story() {
   const [moving, setMoving] = useState(false);
   const [sound, setSound] = useState(false);
 
+  // Если нужный кадр ещё не загружен, показываем ближайший готовый
   const draw = useCallback((i: number) => {
-    const img = frames.current[i];
     const ctx = canvas.current?.getContext("2d");
-    if (ctx && img?.complete && img.naturalWidth && i !== lastFrame.current) {
-      ctx.drawImage(img, 0, 0, 1280, 720);
-      lastFrame.current = i;
+    if (!ctx) return;
+    for (let d = 0; d <= LAST; d++) {
+      for (const n of [i - d, i + d]) {
+        const img = frames.current[n];
+        if (img?.complete && img.naturalWidth) {
+          if (n !== drawn.current) {
+            ctx.drawImage(img, 0, 0, 1280, 720);
+            drawn.current = n;
+            canvas.current!.dataset.frame = String(n);
+          }
+          return;
+        }
+      }
     }
   }, []);
 
-  // Прелоад кадров проезда, затем клипов сцены в фоне
   useEffect(() => {
+    history.scrollRestoration = "manual";
+    scrollTo(0, 0);
     const dir = innerWidth < 800 ? "s" : "l";
     let done = 0;
-    const tick = () => setLoaded(++done / FRAMES);
+    const tick = () => {
+      setLoaded(++done / FRAMES);
+      draw(Math.round(shown.current));
+    };
     frames.current = Array.from({ length: FRAMES }, (_, i) => {
       const img = new Image();
-      img.onload = () => { if (i === 0) draw(0); tick(); };
+      img.onload = tick;
       img.onerror = tick;
       img.src = `/media/seq/${dir}/${String(i + 1).padStart(3, "0")}.webp`;
       return img;
@@ -88,47 +109,104 @@ export default function Story() {
     })();
   }, [gate]);
 
-  // Скролл управляет кадрами, текстом и громкостью
+  // Два видео по очереди: новый клип выходит наверх только когда уже играет, без вспышки
+  const play = useCallback((name: string, loop = false) => new Promise<void>((resolve) => {
+    const mine = session.current;
+    const next = (front.current ? vidA : vidB).current;
+    const prev = (front.current ? vidB : vidA).current;
+    if (!next) return resolve();
+    const stall = setTimeout(resolve, 9000);
+    const finish = () => { clearTimeout(stall); resolve(); };
+    release.current = finish;
+    next.loop = loop;
+    next.src = blobs.current[name] ?? `/media/${name}.mp4`;
+    next.onended = finish;
+    next.onerror = finish;
+    next.onplaying = () => {
+      next.onplaying = null;
+      if (mine !== session.current) return;
+      next.style.opacity = "1";
+      if (prev) { prev.style.opacity = "0"; prev.pause(); }
+      front.current = 1 - front.current;
+      if (loop) finish();
+    };
+    next.play().catch(finish);
+  }), []);
+
+  const enterStage = useCallback(() => {
+    stageOn.current = true;
+    setStage(true);
+    play("idle", true);
+  }, [play]);
+
+  const leaveStage = useCallback(() => {
+    stageOn.current = false;
+    session.current++;
+    busy.current = false;
+    current.current = null;
+    release.current?.();
+    for (const v of [vidA.current, vidB.current]) {
+      if (!v) continue;
+      v.onplaying = v.onended = v.onerror = null;
+      v.pause();
+      v.style.opacity = "0";
+    }
+    setStage(false);
+    setZone(null);
+    setMoving(false);
+  }, []);
+
+  // Скролл задаёт цель, кадры плавно её догоняют, сцена включается только когда проезд закончен
   useEffect(() => {
-    let raf = 0;
-    const update = () => {
-      raf = 0;
+    const sync = () => {
       const el = section.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
       const p = Math.min(1, Math.max(0, -r.top / (r.height - innerHeight)));
-      progress.current = p;
-      draw(Math.round(Math.min(p / STAGE_AT, 1) * (FRAMES - 1)));
+      target.current = Math.min(p / STAGE_AT, 1) * LAST;
       if (fog.current) fog.current.style.opacity = p < 0.006 ? "1" : "0";
       const b = beats.current;
       if (b[0]) b[0].style.opacity = String(1 - Math.min(p / 0.1, 1));
       if (b[1]) b[1].style.opacity = String(fade(p, 0.2, 0.28, 0.42, 0.5));
       if (b[2]) b[2].style.opacity = String(fade(p, 0.58, 0.66, 0.8, 0.88));
       if (audio.current && !muted.current) audio.current.gain.gain.value = 0.8 * (1 - Math.min(p / 0.7, 1)) + 0.04;
-      const on = p >= STAGE_AT;
-      setStage((s) => {
-        if (s && !on) {
-          current.current = null;
-          setZone(null);
-        }
-        return on;
-      });
+      if (stageOn.current && p < STAGE_AT - 0.004) leaveStage();
+      if (!raf.current) raf.current = requestAnimationFrame(step);
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    addEventListener("scroll", onScroll, { passive: true });
-    addEventListener("resize", onScroll);
-    update();
-    return () => { removeEventListener("scroll", onScroll); removeEventListener("resize", onScroll); };
-  }, [draw]);
+    const step = () => {
+      const diff = target.current - shown.current;
+      shown.current = Math.abs(diff) < 0.4 ? target.current : shown.current + diff * 0.22;
+      draw(Math.round(shown.current));
+      if (!stageOn.current && shown.current >= LAST) enterStage();
+      raf.current = shown.current === target.current ? 0 : requestAnimationFrame(step);
+    };
+    addEventListener("scroll", sync, { passive: true });
+    addEventListener("resize", sync);
+    sync();
+    return () => {
+      removeEventListener("scroll", sync);
+      removeEventListener("resize", sync);
+      cancelAnimationFrame(raf.current);
+      raf.current = 0;
+    };
+  }, [draw, enterStage, leaveStage]);
 
   useEffect(() => {
     document.documentElement.style.overflow = gate ? "hidden" : "";
   }, [gate]);
 
-  const startEngine = async (withSound: boolean) => {
+  useEffect(() => {
+    const onHide = () => {
+      const ctx = audio.current?.ctx;
+      if (ctx) void (document.hidden ? ctx.suspend() : ctx.resume());
+    };
+    document.addEventListener("visibilitychange", onHide);
+    return () => document.removeEventListener("visibilitychange", onHide);
+  }, []);
+
+  const startEngine = async () => {
     setGate(false);
     fog.current?.play().catch(() => {});
-    if (!withSound) { muted.current = true; return; }
     try {
       const ctx = new AudioContext();
       const gain = ctx.createGain();
@@ -148,52 +226,27 @@ export default function Story() {
   };
 
   const toggleSound = () => {
-    if (!audio.current) return startEngine(true);
+    if (!audio.current) return;
     muted.current = sound;
     audio.current.gain.gain.value = sound ? 0 : 0.3;
     setSound(!sound);
   };
 
-  // Два видео по очереди: новый клип выходит наверх только когда уже играет, без вспышки
-  const play = useCallback((name: string, loop = false) => new Promise<void>((resolve) => {
-    const next = vids[1 - front.current].current;
-    const prev = vids[front.current].current;
-    if (!next) return resolve();
-    next.loop = loop;
-    next.src = blobs.current[name] ?? `/media/${name}.mp4`;
-    next.onended = () => resolve();
-    next.onerror = () => resolve();
-    next.onplaying = () => {
-      next.onplaying = null;
-      next.style.opacity = "1";
-      if (prev) { prev.style.opacity = "0"; prev.pause(); }
-      front.current = 1 - front.current;
-      if (loop) resolve();
-    };
-    next.play().catch(() => resolve());
-  }), []); // eslint-disable-line react-hooks/exhaustive-deps
-
   const open = useCallback(async (z: Zone | null) => {
-    if (busy.current || current.current?.id === z?.id) return;
+    if (busy.current || !stageOn.current || current.current?.id === z?.id) return;
+    const mine = session.current;
     busy.current = true;
     setMoving(true);
     setZone(null);
     if (current.current) await play(`${current.current.clip}_r`);
+    if (mine !== session.current) return;
     current.current = z;
-    if (z) {
-      await play(z.clip);
-      setZone(z);
-    } else {
-      await play("idle", true);
-    }
+    await play(z ? z.clip : "idle", !z);
+    if (mine !== session.current) return;
+    if (z) setZone(z);
     setMoving(false);
     busy.current = false;
   }, [play]);
-
-  useEffect(() => {
-    if (stage) { if (!current.current) play("idle", true); }
-    else vids.forEach((v) => { if (v.current) { v.current.style.opacity = "0"; v.current.pause(); } });
-  }, [stage, play]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const ready = loaded >= READY_AT;
 
@@ -218,12 +271,9 @@ export default function Story() {
           <div className="gate-hex"><Hex /></div>
           <div className="gate-logo">{site.brand}<small>{site.brandSub}</small></div>
           {ready ? (
-            <>
-              <button className="btn" onClick={() => startEngine(true)}>Завести</button>
-              <button className="link" onClick={() => startEngine(false)}>Войти без звука</button>
-            </>
+            <button className="btn" onClick={startEngine}>Запуск</button>
           ) : (
-            <div className="bar" role="progressbar" aria-valuenow={Math.round((loaded / READY_AT) * 100)}>
+            <div className="bar" role="progressbar" aria-valuenow={Math.round(Math.min(loaded / READY_AT, 1) * 100)}>
               <i style={{ width: `${Math.min(loaded / READY_AT, 1) * 100}%` }} />
             </div>
           )}
@@ -236,12 +286,12 @@ export default function Story() {
             <div className="frame">
               <canvas ref={canvas} width={1280} height={720} />
               <video ref={fog} src="/media/fog.mp4" muted loop playsInline autoPlay preload="auto" />
-              <video ref={vids[0]} muted playsInline preload="auto" className="clip" />
-              <video ref={vids[1]} muted playsInline preload="auto" className="clip" />
+              <video ref={vidA} muted playsInline preload="auto" className="clip" />
+              <video ref={vidB} muted playsInline preload="auto" className="clip" />
               {stage && !zone && !moving && zones.map((z) => (
                 <button
                   key={z.id}
-                  className={`pin-btn ${z.pin.side}`}
+                  className={`pin-btn ${z.pin.side === "top" ? "up" : "down"}`}
                   style={{ left: `${z.pin.x}%`, top: `${z.pin.y}%` }}
                   onClick={() => open(z)}
                 >
@@ -260,7 +310,7 @@ export default function Story() {
             <h2>Ворота открыты каждый день</h2>
             <p>{site.hours.replace("Ежедневно, ", "С ").replace("-", " до ")}</p>
           </div>
-          <div className="beat side right" ref={(n) => { beats.current[2] = n; }}>
+          <div className="beat side" ref={(n) => { beats.current[2] = n; }}>
             <h2>Два поста, свой аквабласт</h2>
             <p>Рейтинг {site.rating} на Яндекс Картах, {site.votes} оценок</p>
           </div>

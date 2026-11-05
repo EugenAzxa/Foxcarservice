@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { site } from "@/data/site";
 import { rub, zones } from "@/data/services";
 import OpenNow from "./OpenNow";
@@ -105,6 +106,7 @@ export default function Sections() {
           <span className="logo">{site.brand}<small>{site.brandSub}</small></span>
           <span className="muted">{site.address}</span>
           <a href={site.phoneHref}>{site.phone}</a>
+          <Link className="link" href="/admin">Для сотрудников</Link>
         </div>
       </footer>
     </>
