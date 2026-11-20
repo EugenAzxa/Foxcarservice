@@ -1,6 +1,6 @@
 "use client";
 // Заставка первого экрана: короткий ролик «разбитая машина заезжает → ремонт →
-// блестит» поверх картинки героя. Играет один раз за визит, потом растворяется
+// блестит» поверх картинки героя. Играет при каждом открытии страницы, потом растворяется
 // в ту же картинку (последний кадр ролика = hero.jpg), и проявляется логотип.
 // Ролик не грузится при «уменьшить движение» и в режиме экономии трафика,
 // на узком экране берётся лёгкая версия. Кнопка «Пропустить» всегда есть.
@@ -17,16 +17,11 @@ export default function HeroIntro() {
     const conn = (navigator as Navigator & { connection?: Conn }).connection;
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const slow = conn?.saveData || /2g/.test(conn?.effectiveType ?? "");
-    let seen = false;
-    try { seen = sessionStorage.getItem("fox.intro") === "1"; } catch { /* приватный режим */ }
-    if (still || slow || seen) { setPhase("done"); return; }
+    if (still || slow) { setPhase("done"); return; }
     setSrc(innerWidth < 760 ? "/media/intro-s.mp4" : "/media/intro.mp4");
   }, []);
 
-  const finish = () => {
-    setPhase("done");
-    try { sessionStorage.setItem("fox.intro", "1"); } catch { /* ignore */ }
-  };
+  const finish = () => setPhase("done");
 
   useEffect(() => {
     const v = vid.current;

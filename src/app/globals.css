@@ -373,6 +373,8 @@ h1 em, h2 em { font-style: normal; color: var(--sky); }
   .hero { padding-top: 90px; }
   .hero-img, .intro video { object-position: 30% 40%; }
   .hero-logo { display: none; }
+  .intro-skip { top: calc(72px + env(safe-area-inset-top)); bottom: auto; right: 16px; }
+  .aspects { display: none; }
   .hot span { display: none; }
   .hot { width: 36px; height: 36px; margin: -18px 0 0 -18px; }
   .hero::before { background: linear-gradient(0deg, var(--bg) 8%, rgb(10 13 18 / 0.75) 55%, rgb(10 13 18 / 0.35) 100%); }
