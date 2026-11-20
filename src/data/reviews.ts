@@ -2,6 +2,17 @@
 // Тексты дословные: это цитаты, не редактировать. Новые отзывы дописывать сверху.
 export type Review = { n: string; d: string; t: string };
 
+// Фото, которые клиенты приложили к отзывам (первое из каждого), public/reviews/<slug>.jpg
+export const reviewPhotos: Record<string, string> = {
+  "Кирилл Голованов": "kirill-golovanov", "Viktor Bukin": "viktor-bukin", "Света С.": "sveta-s",
+  "Дмитрий Торт": "dmitriy-tort", "Алиса Павловна": "alisa-pavlovna", "Stasi": "stasi",
+  "Микаэль Б.": "mikael-b", "Андрей О.": "andrey-o", "Николай": "nikolay", "Евгения К.": "evgeniya-k",
+  "Daria Feofilatieva": "daria-f", "Владимир Пономаренко": "vladimir-ponomarenko", "Михаил Михаил": "mikhail-mikhail",
+  "Андрей А.": "andrey-a", "Дарья Герцен": "darya-gertsen", "Владимир П.": "vladimir-p", "Беляев Максим": "belyaev-maksim",
+  "Pechkinjack": "pechkinjack", "Болгарский": "bolgarskiy", "Аскар Мякишев": "askar-myakishev", "Поникаров Ю.": "ponikarov-yu",
+  "Глеб Тавлинов": "gleb-tavlinov", "Fackelnick": "fackelnick", "Андрей Шипилов": "andrey-shipilov", "Михаил Андриенко": "mikhail-andrienko",
+};
+
 export const reviews: Review[] = [
   { n: "Дарья Герцен", d: "2026-11-02", t: "Обслуживаю машину в сервисе около года,нареканий никогда не было,всегда работу выполняют в срок, качественно. Так же есть шиномонтаж, рекомендую!" },
   { n: "Леонид М.", d: "2026-10-27", t: "Отличный сервис, приятные сотрудники. Вежливое общение, хорошее отношение к клиентам. Приятно иметь дело с такими специалистами. Сделали все очень быстро" },

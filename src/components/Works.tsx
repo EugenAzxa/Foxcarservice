@@ -1,6 +1,8 @@
 "use client";
-// Работы из бокса. Админ добавляет их в /admin (демо: хранится в этом браузере).
+// Работы из бокса: настоящие фото из галереи сервиса на Яндекс Картах и из отзывов.
+// Админ добавляет новые в /admin (демо: хранится в этом браузере).
 import { useWorks } from "@/lib/demo";
+import { site } from "@/data/site";
 
 const MONTHS = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
 const short = (d: string) => { const [, m, day] = d.split("-").map(Number); return `${day} ${MONTHS[m - 1]}`; };
@@ -10,20 +12,21 @@ export default function Works() {
   return (
     <section className="sec" id="raboty">
       <div className="wrap">
-        <p className="eyebrow">Работы</p>
-        <h2>Свежее <em>из нашего бокса</em></h2>
+        <p className="eyebrow">Фото мастеров и клиентов</p>
+        <h2>Работы <em>из нашего бокса</em></h2>
         <div className="works">
           {works.map((w) => (
             <article key={w.id} className="work">
-              <img src={w.photo} alt={w.title} loading="lazy" />
-              <div>
-                <span className="work-meta">{w.car} · {short(w.date)}</span>
+              <div className="work-ph"><img src={w.photo} alt={w.title} loading="lazy" /></div>
+              <div className="work-b">
                 <h3>{w.title}</h3>
-                <p>{w.text}</p>
+                <span className="work-meta">{w.tag ?? [w.car, w.date && short(w.date)].filter(Boolean).join(" · ")}</span>
+                {w.text && <p>{w.text}</p>}
               </div>
             </article>
           ))}
         </div>
+        <a className="link works-more" href={site.org.replace(/\/$/, "") + "/gallery/"} target="_blank" rel="noreferrer">Все фото сервиса на Яндекс Картах →</a>
       </div>
     </section>
   );

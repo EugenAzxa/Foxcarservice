@@ -5,19 +5,27 @@
 import { useEffect, useState } from "react";
 import { zones } from "@/data/services";
 
-export type Work = { id: string; title: string; car: string; text: string; photo: string; date: string };
+export type Work = { id: string; title: string; car: string; text: string; photo: string; date: string; tag?: string };
 export type Booking = {
   id: string; name: string; phone: string; car: string; service: string;
   day: string; time: string; post: 1 | 2; status: "new" | "confirmed" | "done"; demo?: boolean;
 };
 
-const K = { prices: "fox.prices", works: "fox.works", bookings: "fox.bookings", mine: "fox.mine" };
+const K = { prices: "fox.prices", works: "fox.works2", bookings: "fox.bookings", mine: "fox.mine" };
 const EVT = "fox-demo";
 
-// Две демо-работы и две демо-записи: этого хватает, чтобы показать идею.
+// Настоящие работы: фото из галереи карточки FOX на Яндекс Картах и из отзывов клиентов
+// (скачаны 20.11.2026 с согласия пользователя, исходники в Материалы/). Подписи только по тому,
+// что видно на фото. Админ может добавить свои работы сверху (демо, в этом браузере).
 const DEMO_WORKS: Work[] = [
-  { id: "w1", title: "Замена передних пружин и правка дисков", car: "Kia Rio", text: "Попали в яму: лопнули обе передние пружины, повело диски. Запчасти заказали в тот же день, наутро машина уехала.", photo: "/photo/bay.jpg", date: "2026-11-12" },
-  { id: "w2", title: "Аквабласт суппортов", car: "BMW 3 серии", text: "Сняли суппорты, очистили аквабластом, заменили пыльники и направляющие. Тормоза перестали клинить.", photo: "/photo/equip.jpg", date: "2026-11-08" },
+  { id: "y1", title: "Суппорты до и после аквабласта", car: "", tag: "Аквабласт деталей", text: "", photo: "/works/supporty-akvablast.jpg", date: "" },
+  { id: "y2", title: "Головка блока и привод ГРМ на разборке", car: "", tag: "Ремонт двигателя", text: "", photo: "/works/dvigatel-gbc-grm.jpg", date: "" },
+  { id: "y3", title: "Двигатель с коробкой снят в сборе", car: "", tag: "Ремонт двигателя", text: "", photo: "/works/dvigatel-v-sbore.jpg", date: "" },
+  { id: "y4", title: "Volkswagen Scirocco: блок цилиндров и ГБЦ", car: "", tag: "Ремонт двигателя", text: "", photo: "/works/scirocco-blok-gbc.jpg", date: "" },
+  { id: "y5", title: "Впускной коллектор и клапанная крышка после аквабласта", car: "", tag: "Аквабласт деталей · фото клиента", text: "", photo: "/works/kollektor-akvablast.jpg", date: "" },
+  { id: "y6", title: "Замена мотора", car: "", tag: "Ремонт двигателя · фото клиента", text: "", photo: "/works/zamena-motora.jpg", date: "" },
+  { id: "y7", title: "Mercedes-AMG в боксе", car: "", tag: "Обслуживание", text: "", photo: "/works/mercedes-amg.jpg", date: "" },
+  { id: "y8", title: "Новое сцепление, заказанное через сервис", car: "", tag: "Запчасти под заказ · фото клиента", text: "", photo: "/works/sceplenie.jpg", date: "" },
 ];
 
 export const today = () => new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Moscow" }));

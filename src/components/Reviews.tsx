@@ -4,27 +4,31 @@
 // при «уменьшить движение» ряды просто листаются пальцем.
 import { useEffect, useRef, useState } from "react";
 import { site } from "@/data/site";
-import { aspects, reviews, type Review } from "@/data/reviews";
+import { aspects, reviewPhotos, reviews, type Review } from "@/data/reviews";
 
 const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 const ruDate = (d: string) => { const [y, m, day] = d.split("-").map(Number); return `${day} ${MONTHS[m - 1]} ${y}`; };
 const letter = (n: string) => (n.match(/\p{L}/u)?.[0] ?? "F").toUpperCase();
-const TILE_EVERY = 5;
-const tiles = [
-  { src: "/photo/lounge.jpg", cap: "Зона ожидания с камерами на посты" },
-  { src: "/photo/tools.jpg", cap: "Инструмент на своих местах" },
-  { src: "/photo/wall.jpg", cap: "Два поста с подъёмниками" },
-  { src: "/photo/equip.jpg", cap: "Свой аквабласт и шиномонтаж" },
-];
-
 function Star() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2Z" /></svg>;
 }
 
 function Card({ r, i, onOpen, copy }: { r: Review; i: number; onOpen: (r: Review) => void; copy?: boolean }) {
-  const long = r.t.length > 230;
+  const ph = reviewPhotos[r.n];
+  const long = r.t.length > (ph ? 120 : 230);
   return (
-    <article className="rv">
+    <article className="rv has-ph">
+      {ph ? (
+        <figure className="rv-img">
+          <img src={`/reviews/${ph}.jpg`} alt="" loading="lazy" />
+          <figcaption>Фото клиента</figcaption>
+        </figure>
+      ) : (
+        <div className="rv-img rv-np" aria-hidden="true">
+          <span className="rv-hex">{site.rating}</span>
+          <small>оценка на Яндекс Картах</small>
+        </div>
+      )}
       <div className="rv-h">
         <span className={`rv-av c${i % 4}`} aria-hidden="true">{letter(r.n)}</span>
         <div className="rv-who"><b>{r.n}</b><time dateTime={r.d}>{ruDate(r.d)}</time></div>
@@ -57,19 +61,8 @@ function Row({ items, reverse, onOpen, offset }: { items: Review[]; reverse?: bo
     return () => { io.disconnect(); removeEventListener("resize", fit); };
   }, []);
 
-  const build = (copy: boolean) => items.flatMap((r, k) => {
-    const out = [<Card key={`r${k}`} r={r} i={k + offset} onOpen={onOpen} copy={copy} />];
-    if ((k + 1) % TILE_EVERY === 0) {
-      const t = tiles[((k + 1) / TILE_EVERY + offset) % tiles.length];
-      out.push(
-        <figure key={`t${k}`} className="rv rv-ph">
-          <img src={t.src} alt="" loading="lazy" />
-          <figcaption><b>{site.rating}</b> на Яндекс Картах<span>{t.cap}</span></figcaption>
-        </figure>,
-      );
-    }
-    return out;
-  });
+  const build = (copy: boolean) =>
+    items.map((r, k) => <Card key={`r${k}`} r={r} i={k + offset} onOpen={onOpen} copy={copy} />);
 
   return (
     <div className={`mq-row${reverse ? " rev" : ""}${off ? " off" : ""}`} ref={row}>
@@ -137,6 +130,7 @@ export default function Reviews() {
               <span className="rv-av c0" aria-hidden="true">{letter(open.n)}</span>
               <div className="rv-who"><b>{open.n}</b><time dateTime={open.d}>{ruDate(open.d)}</time></div>
             </div>
+            {reviewPhotos[open.n] && <img className="rv-full-ph" src={`/reviews/${reviewPhotos[open.n]}.jpg`} alt="Фото клиента" />}
             <p className="rv-full">{open.t}</p>
             <a className="link" href={site.orgReviews} target="_blank" rel="noreferrer">Открыть на Яндекс Картах →</a>
           </>
