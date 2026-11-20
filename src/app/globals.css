@@ -67,6 +67,24 @@ h1 em, h2 em { font-style: normal; color: var(--sky); }
 .hero-facts b { font: 600 clamp(22px, 2.4vw, 30px)/1.1 var(--display); }
 .hero-facts span { color: var(--steel); font-size: 14px; }
 
+/* Заставка: ролик поверх картинки, потом растворяется в неё */
+.intro { position: absolute; inset: 0; z-index: 1; background: var(--bg); transition: opacity 0.9s ease; }
+.intro video { width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%; }
+.intro.idle video { opacity: 0; }
+.intro.done { opacity: 0; pointer-events: none; }
+.hero-in { position: relative; z-index: 2; transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s; }
+.intro.idle ~ .hero-in, .intro.play ~ .hero-in { opacity: 0; transform: translateY(16px); }
+.intro-skip { position: absolute; z-index: 3; right: clamp(16px, 3vw, 40px); bottom: 28px; padding: 8px 16px; font-size: 13px; color: var(--steel); border: 1px solid var(--line); border-radius: 999px; background: rgb(10 13 18 / 0.7); }
+.intro-skip:hover { color: var(--white); }
+.hero-logo { position: absolute; z-index: 2; right: clamp(16px, 4vw, 64px); top: 110px; display: flex; align-items: center; gap: 12px; opacity: 0; transition: opacity 0.6s ease 0.3s; pointer-events: none; }
+.hero-logo.in { opacity: 1; }
+.hero-logo svg { width: 54px; height: 54px; overflow: visible; }
+.hero-logo path { fill: none; stroke: var(--white); stroke-width: 1.2; stroke-dasharray: 60; stroke-dashoffset: 60; filter: drop-shadow(0 0 4px #fff) drop-shadow(0 0 10px var(--cobalt)); }
+.hero-logo.in path { animation: hex-draw 1.4s ease 0.4s forwards; }
+.hero-logo span { font: 700 34px/1 var(--display); letter-spacing: 0.08em; text-shadow: 0 0 18px rgb(255 255 255 / 0.55); }
+.hero-logo small { display: block; margin-top: 6px; font: 500 11px/1 var(--font-body); letter-spacing: 0.4em; text-transform: uppercase; color: var(--steel); text-shadow: none; }
+@keyframes hex-draw { to { stroke-dashoffset: 0; } }
+
 /* Разделы */
 .sec { padding: clamp(64px, 9vw, 120px) 0; border-top: 1px solid var(--line); }
 .sec.alt { background: var(--bg-2); }
@@ -318,7 +336,8 @@ h1 em, h2 em { font-style: normal; color: var(--sky); }
 @media (max-width: 640px) {
   .top .btn.sm { display: none; }
   .hero { padding-top: 90px; }
-  .hero-img { object-position: 30% 40%; }
+  .hero-img, .intro video { object-position: 30% 40%; }
+  .hero-logo { display: none; }
   .hero::before { background: linear-gradient(0deg, var(--bg) 8%, rgb(10 13 18 / 0.75) 55%, rgb(10 13 18 / 0.35) 100%); }
   .hero .row .btn { flex: 1; }
   .hero-facts { gap: 18px; }
@@ -340,6 +359,7 @@ h1 em, h2 em { font-style: normal; color: var(--sky); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .hero-logo path { animation: none; stroke-dashoffset: 0; }
   .mq-row { overflow-x: auto; }
   .mq-track { animation: none; }
   .mq-copy { display: none; }

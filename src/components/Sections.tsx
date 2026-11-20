@@ -6,6 +6,7 @@ import Reviews from "./Reviews";
 import Prices from "./Prices";
 import Works from "./Works";
 import Install from "./Install";
+import HeroIntro from "./HeroIntro";
 
 // Только то, что подтверждено карточкой Яндекса и отзывами клиентов.
 const perks = [
@@ -53,6 +54,7 @@ export default function Sections() {
 
       <section className="hero" id="top">
         <Image className="hero-img" src="/photo/hero.jpg" alt="BMW M3 в боксе FOX Car Service" fill priority sizes="100vw" />
+        <HeroIntro />
         <div className="wrap hero-in">
           <p className="eyebrow">Автосервис в Лисьем Носу · 2 подъёмника</p>
           <h1>Ремонт и ТО <em>без сюрпризов в&nbsp;счёте</em></h1>
