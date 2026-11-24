@@ -6,7 +6,7 @@ export type Zone = {
   label: string;
   title: string;
   lead: string;
-  pin: { x: number; y: number; side: "top" | "bottom" }; // % от схемы машины из логотипа (Prices.tsx)
+  pin: { x: number; y: number; side: "top" | "bottom" }; // % от кадра public/photo/car-xray.jpg (Prices.tsx)
   services: Service[];
 };
 
@@ -14,7 +14,7 @@ export const zones: Zone[] = [
   {
     id: "engine", clip: "hood", label: "Двигатель", title: "Двигатель и турбина",
     lead: "От эндоскопии до капитального ремонта. Сначала показываем, что нашли, потом считаем работы.",
-    pin: { x: 86, y: 52, side: "top" },
+    pin: { x: 75, y: 44, side: "top" },
     services: [
       { name: "Замена ГРМ", price: 5000 },
       { name: "Замена сервисного ремня", price: 1000 },
@@ -32,7 +32,7 @@ export const zones: Zone[] = [
   {
     id: "service", clip: "door", label: "ТО", title: "ТО и расходники",
     lead: "Плановое обслуживание с жидкостями и фильтрами. Запчасти можно заказать через нас.",
-    pin: { x: 66, y: 46, side: "top" },
+    pin: { x: 88.5, y: 50, side: "bottom" },
     services: [
       { name: "Замена масла в двигателе", price: 1500 },
       { name: "Замена масла в коробке", price: 1500 },
@@ -45,7 +45,7 @@ export const zones: Zone[] = [
   {
     id: "wheels", clip: "wheel", label: "Шины и тормоза", title: "Шины и тормоза",
     lead: "Шиномонтаж и тормозная система на месте, в том же боксе.",
-    pin: { x: 81, y: 81, side: "bottom" },
+    pin: { x: 82.5, y: 71, side: "bottom" },
     services: [
       { name: "Шиномонтаж", price: 1800 },
       { name: "Ремонт прокола", price: 350 },
@@ -58,7 +58,7 @@ export const zones: Zone[] = [
   {
     id: "suspension", clip: "lift", label: "Подвеска", title: "Подвеска и ходовая",
     lead: "Поднимаем машину и показываем прямо на подъёмнике, что срочно, а что потерпит.",
-    pin: { x: 19, y: 80, side: "bottom" },
+    pin: { x: 22, y: 44, side: "top" },
     services: [
       { name: "Замена амортизаторов", price: 2500 },
       { name: "Ремонт ходовой части" },
@@ -71,7 +71,7 @@ export const zones: Zone[] = [
   {
     id: "extras", clip: "trunk", label: "Багажник", title: "Запчасти и допы",
     lead: "Свой магазин запчастей и автотоваров, заказ под вашу машину и аквабласт для очистки деталей.",
-    pin: { x: 10, y: 54, side: "top" },
+    pin: { x: 9.5, y: 33, side: "top" },
     services: [
       { name: "Запчасти и комплектующие под заказ" },
       { name: "Аквабластинг деталей" },

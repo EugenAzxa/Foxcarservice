@@ -1,8 +1,9 @@
 "use client";
-// Услуги на машине: клиент нажимает на узел (двигатель, колесо, подвеска...)
-// и видит, что именно чиним и сколько стоит. Машина = силуэт из логотипа FOX
-// (слои public/brand/logo-car.png и logo-fox.png), точки — из services.ts (pin x/y в %). Ниже те же узлы вкладками, для телефона и
-// клавиатуры. Цены берутся из services.ts с правками демо-админки поверх.
+// Услуги на машине: клиент нажимает на узел (двигатель, колёса, подвеска...)
+// и видит, что именно чиним и сколько стоит.
+// Картинка: public/photo/car-xray.jpg (рентген-схема машины без марки, Higgsfield 24.11.2026),
+// точки — из services.ts (pin x/y в % кадра). Рядом те же узлы списком (на телефоне — лентой),
+// для клавиатуры и маленьких экранов. Цены из services.ts с правками демо-админки поверх.
 import { useState } from "react";
 import Book from "./Book";
 import { rub, zones } from "@/data/services";
@@ -15,11 +16,21 @@ const icons: Record<string, string> = {
   suspension: "M7 3v4l10 3-10 3 10 3-10 3v2",
   extras: "M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8",
 };
+const Ic = ({ id }: { id: string }) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={icons[id]} /></svg>;
 
 export default function Prices() {
   const [cur, setCur] = useState(zones[0].id);
+  const [all, setAll] = useState(false); // на телефоне длинный список свёрнут до 6 строк
+  const pick = (id: string) => { setCur(id); setAll(false); };
   const map = usePrices();
   const z = zones.find((x) => x.id === cur)!;
+
+  // минимальная цена узла для подписи в списке
+  const from = (id: string) => {
+    const zone = zones.find((x) => x.id === id)!;
+    const ps = zone.services.map((s) => priceOf(map, zone.id, s.name, s.price)).filter((p): p is number => !!p);
+    return ps.length ? rub(Math.min(...ps)) : "по запросу";
+  };
 
   return (
     <section className="sec alt" id="uslugi">
@@ -28,60 +39,66 @@ export default function Prices() {
         <h2>Покажите, <em>что беспокоит</em></h2>
         <p className="lead">Нажмите на узел машины: увидите, что мы там делаем и сколько это стоит. Цены «от», точную сумму мастер называет после осмотра на подъёмнике.</p>
 
-        <div className="car-map">
-          <div className="car-col">
-          <div className="car">
-            <i className="car-body" role="img" aria-label="Схема узлов автомобиля" />
-            <i className="car-fox" aria-hidden="true" />
-            <svg className="car-ring" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <ellipse cx={z.pin.x} cy={z.pin.y} rx="6" ry="17" />
-            </svg>
-            {zones.map((x) => (
-              <button
-                key={x.id}
-                type="button"
-                className={`hot${x.id === cur ? " on" : ""}${x.pin.side === "top" ? " up" : " down"}`}
-                style={{ left: `${x.pin.x}%`, top: `${x.pin.y}%` }}
-                aria-pressed={x.id === cur}
-                onClick={() => setCur(x.id)}
-              >
-                <i aria-hidden="true" />
-                <span>{x.label}</span>
-              </button>
-            ))}
-          </div>
-          <div className="tabs" role="tablist" aria-label="Узлы автомобиля">
-            {zones.map((x) => (
-              <button key={x.id} role="tab" aria-selected={x.id === cur} className={x.id === cur ? "on" : ""} onClick={() => setCur(x.id)}>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d={icons[x.id]} /></svg>
-                {x.label}
-              </button>
-            ))}
-          </div>
-          </div>
+        <div className="svc-grid">
+        <div className="svc-left">
+        <div className="xr">
+          <picture>
+            <source media="(max-width: 760px)" srcSet="/photo/car-xray-760.jpg 760w, /photo/car-xray.jpg 1344w" sizes="100vw" />
+            <img className="xr-img" src="/photo/car-xray.jpg" alt="Схема автомобиля: двигатель, подвеска, тормоза, выхлоп" width={1344} height={560} loading="lazy" decoding="async" />
+          </picture>
+          {zones.map((x, i) => (
+            <button
+              key={x.id}
+              type="button"
+              className={`xr-pin${x.id === cur ? " on" : ""}${x.pin.side === "top" ? " up" : " down"}`}
+              style={{ left: `${x.pin.x}%`, top: `${x.pin.y}%` }}
+              aria-pressed={x.id === cur}
+              aria-label={x.label}
+              onClick={() => pick(x.id)}
+            >
+              <i aria-hidden="true">{i + 1}</i>
+              <span aria-hidden="true">{x.label}</span>
+            </button>
+          ))}
+        </div>
 
-          <div className="svc" aria-live="polite">
+          <div className="nodes" role="tablist" aria-label="Узлы автомобиля">
+            {zones.map((x, i) => (
+              <button key={x.id} type="button" role="tab" aria-selected={x.id === cur} className={x.id === cur ? "on" : ""} onClick={() => pick(x.id)}>
+                <span className="nodes-n">{i + 1}</span>
+                <span className="nodes-ic"><Ic id={x.id} /></span>
+                <span className="nodes-t"><b>{x.label}</b><small>{from(x.id)}</small></span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+          <div className={`svc${all ? " all" : ""}`} role="tabpanel" aria-live="polite">
             <div className="svc-head">
-              <span className="svc-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d={icons[z.id]} /></svg></span>
+              <span className="svc-ic"><Ic id={z.id} /></span>
               <h3>{z.title}</h3>
             </div>
             <p className="svc-lead">{z.lead}</p>
             <ul className="svc-list">
-              {z.services.map((s) => {
+              {z.services.map((s, i) => {
                 const p = priceOf(map, z.id, s.name, s.price);
                 return (
-                  <li key={s.name}>
+                  <li key={s.name} className={i >= 6 ? "more" : undefined}>
                     <span>{s.name}</span>
-                    <i aria-hidden="true" />
-                    <b>{p ? rub(p) : "по запросу"}</b>
+                    <b className={p ? "" : "ask"}>{p ? rub(p) : "по запросу"}</b>
                   </li>
                 );
               })}
             </ul>
-            <Book topic={z.title}>Записаться: {z.label.toLowerCase()}</Book>
+            {z.services.length > 6 && !all && (
+              <button type="button" className="svc-all" onClick={() => setAll(true)}>Показать все услуги ({z.services.length})</button>
+            )}
+            <div className="svc-cta">
+              <Book topic={z.title}>Записаться: {z.label.toLowerCase()}</Book>
+              <span className="muted">Точную цену назовём после осмотра</span>
+            </div>
           </div>
         </div>
-
       </div>
     </section>
   );
