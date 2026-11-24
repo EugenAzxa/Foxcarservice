@@ -1,11 +1,12 @@
 "use client";
 // Услуги на машине: клиент нажимает на узел (двигатель, колёса, подвеска...)
 // и видит, что именно чиним и сколько стоит.
-// Картинка: public/photo/car-xray.jpg (рентген-схема машины без марки, Higgsfield 24.11.2026),
-// точки — из services.ts (pin x/y в % кадра). Рядом те же узлы списком (на телефоне — лентой),
+// Машина: 3D-игрушка в Car3D.tsx (открывается капот, багажник, подъёмник...).
+// Пока 3D грузится или без WebGL — картинка public/photo/car-xray.jpg (Higgsfield 24.11.2026). Рядом те же узлы списком (на телефоне — лентой),
 // для клавиатуры и маленьких экранов. Цены из services.ts с правками демо-админки поверх.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Book from "./Book";
+import Car3D from "./Car3D";
 import { rub, zones } from "@/data/services";
 import { priceOf, usePrices } from "@/lib/demo";
 
@@ -22,6 +23,13 @@ export default function Prices() {
   const [cur, setCur] = useState(zones[0].id);
   const [all, setAll] = useState(false); // на телефоне длинный список свёрнут до 6 строк
   const pick = (id: string) => { setCur(id); setAll(false); };
+  const nodes = useRef<HTMLDivElement>(null);
+  // на телефоне узлы лентой: выбранный подкручиваем в видимую часть (без прокрутки страницы)
+  useEffect(() => {
+    const box = nodes.current; const b = box?.querySelector<HTMLElement>("button.on");
+    if (!box || !b || box.scrollWidth <= box.clientWidth) return;
+    box.scrollTo({ left: b.offsetLeft - (box.clientWidth - b.offsetWidth) / 2, behavior: "smooth" });
+  }, [cur]);
   const map = usePrices();
   const z = zones.find((x) => x.id === cur)!;
 
@@ -41,28 +49,16 @@ export default function Prices() {
 
         <div className="svc-grid">
         <div className="svc-left">
-        <div className="xr">
-          <picture>
-            <source media="(max-width: 760px)" srcSet="/photo/car-xray-760.jpg 760w, /photo/car-xray.jpg 1344w" sizes="100vw" />
-            <img className="xr-img" src="/photo/car-xray.jpg" alt="Схема автомобиля: двигатель, подвеска, тормоза, выхлоп" width={1344} height={560} loading="lazy" decoding="async" />
-          </picture>
-          {zones.map((x, i) => (
-            <button
-              key={x.id}
-              type="button"
-              className={`xr-pin${x.id === cur ? " on" : ""}${x.pin.side === "top" ? " up" : " down"}`}
-              style={{ left: `${x.pin.x}%`, top: `${x.pin.y}%` }}
-              aria-pressed={x.id === cur}
-              aria-label={x.label}
-              onClick={() => pick(x.id)}
-            >
-              <i aria-hidden="true">{i + 1}</i>
-              <span aria-hidden="true">{x.label}</span>
-            </button>
-          ))}
-        </div>
+        <Car3D zones={zones} cur={cur} onPick={pick}>
+          <div className="xr">
+            <picture>
+              <source media="(max-width: 760px)" srcSet="/photo/car-xray-760.jpg 760w, /photo/car-xray.jpg 1344w" sizes="100vw" />
+              <img className="xr-img" src="/photo/car-xray.jpg" alt="Схема автомобиля: двигатель, подвеска, тормоза, выхлоп" width={1344} height={560} loading="lazy" decoding="async" />
+            </picture>
+          </div>
+        </Car3D>
 
-          <div className="nodes" role="tablist" aria-label="Узлы автомобиля">
+          <div className="nodes" ref={nodes} role="tablist" aria-label="Узлы автомобиля">
             {zones.map((x, i) => (
               <button key={x.id} type="button" role="tab" aria-selected={x.id === cur} className={x.id === cur ? "on" : ""} onClick={() => pick(x.id)}>
                 <span className="nodes-n">{i + 1}</span>

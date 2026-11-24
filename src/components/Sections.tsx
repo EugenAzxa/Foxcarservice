@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { heroImage, site } from "@/data/site";
+import { priceFor, quick, rub } from "@/data/services";
 import OpenNow from "./OpenNow";
 import Reviews from "./Reviews";
 import Prices from "./Prices";
@@ -75,13 +76,28 @@ export default function Sections() {
         <div className="wrap hero-in">
           <p className="eyebrow">Автосервис в Лисьем Носу · 2 подъёмника</p>
           <h1>Ремонт и ТО <em>без сюрпризов в&nbsp;счёте</em></h1>
-          <p className="lead">Показываем поломку прямо на подъёмнике и согласуем смету до начала работ. Двигатель, ходовая, тормоза, ТО, шиномонтаж и аквабласт.</p>
+          <p className="lead hero-lead">Показываем поломку прямо на подъёмнике и согласуем смету до начала работ. Двигатель, ходовая, тормоза, ТО, шиномонтаж и аквабласт.</p>
+          <ul className="hero-quick" aria-label="Популярные услуги и цены">
+            {quick.map((q) => {
+              const p = priceFor(q.zone, q.name);
+              return (
+                <li key={q.label}>
+                  <Book topic={q.label} className="hq"><span>{q.label}</span><b>{p ? rub(p) : "по запросу"}</b></Book>
+                </li>
+              );
+            })}
+          </ul>
           <div className="row">
             <Book />
             <a className="btn ghost" href={site.phoneHref}>{site.phone}</a>
           </div>
           <ul className="hero-facts">
-            <li><b>{site.rating} ★</b><span>{site.reviews} отзывов на Яндекс Картах</span></li>
+            <li className="hf-rate">
+              <a href={site.orgReviews} target="_blank" rel="noreferrer">
+                <b>{site.rating} <span className="stars" aria-label="5 звёзд">★★★★★</span></b>
+                <span>{site.votes} оценок на Яндекс Картах</span>
+              </a>
+            </li>
             <li><b>10–21</b><span>ежедневно <OpenNow /></span></li>
             <li><b>770 м</b><span>от станции Лисий Нос</span></li>
           </ul>

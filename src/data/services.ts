@@ -47,12 +47,15 @@ export const zones: Zone[] = [
     lead: "Шиномонтаж и тормозная система на месте, в том же боксе.",
     pin: { x: 82.5, y: 71, side: "bottom" },
     services: [
-      { name: "Шиномонтаж", price: 1800 },
-      { name: "Ремонт прокола", price: 350 },
+      // шиномонтаж и хранение: прайс сервиса (прайс_1/2/4.pdf, 11.2026)
+      { name: "Шиномонтаж легковой, 4 колеса", price: 2800 },
+      { name: "Шиномонтаж кроссовер / внедорожник, 4 колеса", price: 3600 },
+      { name: "Ремонт прокола жгутом", price: 350 },
+      { name: "Хранение колёс, комплект на 6 мес.", price: 1700 },
       { name: "Замена тормозных дисков, колодок", price: 2500 },
       { name: "Проточка тормозных дисков" },
       { name: "Ремонт тормозной системы" },
-      { name: "Ремонт дисков" },
+      { name: "Прокатка, рихтовка литых дисков", price: 1200 },
     ],
   },
   {
@@ -79,5 +82,14 @@ export const zones: Zone[] = [
     ],
   },
 ];
+
+// Популярное с ценами для первого экрана (особенно на телефоне): сразу видно, сколько стоит.
+export const quick: { label: string; zone: string; name: string }[] = [
+  { label: "ТО: замена масла", zone: "service", name: "Замена масла в двигателе" },
+  { label: "Шиномонтаж", zone: "wheels", name: "Шиномонтаж легковой, 4 колеса" },
+  { label: "Колодки и диски", zone: "wheels", name: "Замена тормозных дисков, колодок" },
+  { label: "Амортизаторы", zone: "suspension", name: "Замена амортизаторов" },
+];
+export const priceFor = (zone: string, name: string) => zones.find((z) => z.id === zone)?.services.find((s) => s.name === name)?.price;
 
 export const rub = (n: number) => `от\u00a0${n.toLocaleString("ru-RU")}\u00a0₽`;
