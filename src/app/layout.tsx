@@ -7,6 +7,7 @@ import "./globals.css";
 const font = Montserrat({ subsets: ["cyrillic", "latin"], variable: "--font-main", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://foxcarservice.vercel.app"),
   title: site.title,
   description: "Ремонт двигателя, подвески, ТО, шиномонтаж и аквабласт. Лисий Нос, ежедневно 10:00-21:00. Рейтинг 5,0 на Яндекс Картах.",
 };

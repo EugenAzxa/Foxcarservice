@@ -5,8 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { site } from "@/data/site";
 import { zones } from "@/data/services";
-import { SLOTS, addBooking, cancelBooking, freePost, iso, isBusy, today, useBookings, useMine, type Booking as B } from "@/lib/demo";
+import { SLOTS, addBooking, cancelBooking, freePost, iso, isBusy, setStatus, today, useBookings, useMine, type Booking as B } from "@/lib/demo";
+import { canNotify, enableNotify, notify } from "@/lib/notify";
 import Install from "./Install";
+import Logo from "./Logo";
 
 const WD = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
 const MON = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
@@ -25,6 +27,13 @@ export default function Booking() {
   const [done, setDone] = useState<B | null>(null);
 
   const [ready, setReady] = useState(false);
+  const [perm, setPerm] = useState<"on" | "off" | "none">("none");
+  const [toast, setToast] = useState<string | null>(null);
+  useEffect(() => { if (canNotify()) setPerm(Notification.permission === "granted" ? "on" : "off"); }, []);
+  const say = async (title: string, body: string) => {
+    const sent = await notify(title, body);
+    if (!sent) { setToast(`${title}. ${body}`); setTimeout(() => setToast(null), 6000); }
+  };
   useEffect(() => {
     const s = new URLSearchParams(location.search).get("service");
     if (s) setService(s);
@@ -41,6 +50,9 @@ export default function Booking() {
     if (!post) { setTime(null); return; }
     const id = addBooking({ ...form, service, day, time, post });
     setDone({ ...form, service, day, time, post, id, status: "new" });
+    // демо: через несколько секунд «мастер» подтверждает запись и приходит уведомление
+    const when = `${human(day)}, ${time}`;
+    setTimeout(() => { setStatus(id, "confirmed"); say("FOX: запись подтверждена", `${when}, пост ${post}. Ждём вас: Лисий Нос, Большой просп., 10.`); }, 8000);
     setTime(null);
   };
 
@@ -50,11 +62,19 @@ export default function Booking() {
   return (
     <div className="appx">
       <header className="appx-top">
-        <Link className="logo" href="/">{site.brand}<small>{site.brandSub}</small></Link>
+        <Link className="top-logo" href="/" aria-label="FOX Car Service, на главную"><Logo /></Link>
         <a className="tel" href={site.phoneHref}>{site.phone}</a>
       </header>
 
-      <p className="demo-flag">Демо-версия: запись сохраняется только в этом браузере и в сервис не уходит.</p>
+      <p className="demo-flag">Демо-версия: запись сохраняется только в этом браузере и в сервис не уходит. <a className="link" href="/prilozhenie">Как работает приложение</a></p>
+
+      {perm !== "none" && (
+        <div className={`ntf${perm === "on" ? " on" : ""}`}>
+          <span>{perm === "on" ? "🔔 Уведомления включены: напишем, когда мастер подтвердит запись и машина будет готова." : "Включите уведомления: сообщим о подтверждении записи и готовности машины."}</span>
+          {perm === "off" && <button type="button" className="btn sm" onClick={async () => setPerm((await enableNotify()) ? "on" : "off")}>Включить</button>}
+        </div>
+      )}
+      {toast && <div className="ntf-toast" role="status">🔔 {toast}</div>}
 
       <div className="seg" role="tablist">
         <button role="tab" aria-selected={tab === "book"} className={tab === "book" ? "on" : ""} onClick={() => setTab("book")}>Запись</button>
@@ -120,7 +140,7 @@ export default function Booking() {
           <h1 className="appx-h">Вы записаны</h1>
           <p><b>{human(done.day)}, {done.time}</b>, пост {done.post}</p>
           <p>{done.service} · {done.car}</p>
-          <p className="muted">В рабочей версии мастер перезвонит для подтверждения. Сейчас это демо.</p>
+          <p className="muted">Демо: через несколько секунд «мастер» подтвердит запись, и придёт уведомление. В рабочей версии подтверждает настоящий мастер.</p>
           <div className="row">
             <button className="btn" onClick={() => { setDone(null); setTab("mine"); }}>Мои записи</button>
             <button className="btn ghost" onClick={() => setDone(null)}>Записаться ещё</button>
@@ -138,7 +158,10 @@ export default function Booking() {
                 <span>{b.service} · {b.car}</span>
                 <small className={`st ${b.status}`}>{b.status === "new" ? "Ждёт подтверждения" : b.status === "confirmed" ? "Подтверждено" : "Выполнено"}</small>
               </div>
-              <button className="link" onClick={() => cancelBooking(b.id)}>Отменить</button>
+              <div className="mine-act">
+                {b.status === "confirmed" && <button className="link" onClick={() => say("FOX: машина готова", `${b.car}: работы выполнены, можно забирать. Ежедневно до 21:00.`).then(() => setStatus(b.id, "done"))}>Демо: «машина готова»</button>}
+                {b.status !== "done" && <button className="link" onClick={() => cancelBooking(b.id)}>Отменить</button>}
+              </div>
             </article>
           ))}
         </div>

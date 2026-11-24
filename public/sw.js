@@ -1,6 +1,6 @@
 // Service worker FOX: нужен для установки приложения и чтобы /app открывалось без сети
 // (показываем последнюю сохранённую версию). Страницы берём из сети, кэш только запасной.
-const CACHE = "fox-v1";
+const CACHE = "fox-v2";
 const SHELL = ["/app", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {
@@ -27,5 +27,16 @@ self.addEventListener("fetch", (e) => {
         return res;
       })
       .catch(() => caches.match(req).then((hit) => hit || caches.match("/app"))),
+  );
+});
+
+// клик по уведомлению открывает приложение
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      const w = list.find((c) => new URL(c.url).pathname.startsWith("/app"));
+      return w ? w.focus() : self.clients.openWindow("/app");
+    }),
   );
 });

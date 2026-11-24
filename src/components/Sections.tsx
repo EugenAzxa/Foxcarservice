@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { heroImage, site } from "@/data/site";
 import { priceFor, quick, rub } from "@/data/services";
 import OpenNow from "./OpenNow";
@@ -7,9 +6,9 @@ import Reviews from "./Reviews";
 import Prices from "./Prices";
 import Works from "./Works";
 import Intro from "./Intro";
-import Logo from "./Logo";
 import Book from "./Book";
-import LeadDialog from "./LeadDialog";
+import { Footer, Header } from "./Chrome";
+import ArticlesTeaser from "./ArticlesTeaser";
 import Messengers from "./Messengers";
 
 // Только то, что подтверждено карточкой Яндекса и отзывами клиентов.
@@ -37,7 +36,6 @@ const faq = [
   ["Где подождать, пока делают машину?", "В зоне ожидания: кондиционер, напитки, приставка и экран с камерами постов, чтобы видеть свою машину."],
 ];
 
-const phoneIc = "M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2Z";
 
 function Cta({ note = "Перезвоним и подберём удобное время" }: { note?: string }) {
   return (
@@ -53,19 +51,7 @@ export default function Sections() {
     <>
       <Intro />
 
-      <header className="top">
-        <a className="top-logo" href="#top" aria-label="FOX Car Service, наверх"><Logo /></a>
-        <nav aria-label="Разделы">
-          <a href="#uslugi">Услуги</a>
-          <a href="#reviews">Отзывы</a>
-          <a href="#raboty">Работы</a>
-          <a href="#kak">Как работаем</a>
-          <a href="#route">Контакты</a>
-        </nav>
-        <a className="tel" href={site.phoneHref}>{site.phone}</a>
-        <a className="tel-ic" href={site.phoneHref} aria-label={`Позвонить ${site.phone}`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d={phoneIc} /></svg></a>
-        <Book className="btn sm top-book" />
-      </header>
+      <Header />
 
       <section className="hero" id="top">
         <picture className="hero-img">
@@ -148,6 +134,8 @@ export default function Sections() {
         </div>
       </section>
 
+      <ArticlesTeaser />
+
       <section className="sec alt" id="route">
         <div className="wrap route">
           <div>
@@ -170,27 +158,7 @@ export default function Sections() {
         </div>
       </section>
 
-      <footer className="foot">
-        <div className="wrap foot-in">
-          <Logo className="foot-logo" />
-          <div className="foot-col">
-            <span className="muted">{site.address}</span>
-            <a href={site.phoneHref}>{site.phone}</a>
-          </div>
-          <div className="foot-col">
-            <Link className="link" href="/privacy">Политика конфиденциальности</Link>
-            <Link className="link" href="/soglasie">Согласие на обработку данных</Link>
-            <Link className="link" href="/admin">Для сотрудников</Link>
-          </div>
-        </div>
-      </footer>
-
-      <div className="fab">
-        <Book className="btn fab-book" />
-        <a className="btn fab-call" href={site.phoneHref} aria-label={`Позвонить ${site.phone}`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d={phoneIc} /></svg></a>
-      </div>
-
-      <LeadDialog />
+      <Footer />
     </>
   );
 }
