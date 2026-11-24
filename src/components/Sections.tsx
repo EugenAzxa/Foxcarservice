@@ -9,6 +9,7 @@ import Intro from "./Intro";
 import Book from "./Book";
 import { Footer, Header } from "./Chrome";
 import ArticlesTeaser from "./ArticlesTeaser";
+import HeroSearch from "./HeroSearch";
 import Messengers from "./Messengers";
 
 // Только то, что подтверждено карточкой Яндекса и отзывами клиентов.
@@ -73,6 +74,7 @@ export default function Sections() {
               );
             })}
           </ul>
+          <HeroSearch />
           <div className="row">
             <Book />
             <a className="btn ghost" href={site.phoneHref}>{site.phone}</a>

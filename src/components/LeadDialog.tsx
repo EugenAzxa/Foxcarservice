@@ -18,10 +18,11 @@ export default function LeadDialog() {
 
   useEffect(() => {
     const open = (e: Event) => {
-      const topic = (e as CustomEvent<{ topic?: string }>).detail?.topic;
+      const { topic, text } = (e as CustomEvent<{ topic?: string; text?: string }>).detail ?? {};
       setState((s) => (s === "sending" ? s : "form"));
       setErr("");
-      if (topic) setF((x) => ({ ...x, car: x.car ? x.car : `${topic}: ` }));
+      if (text) setF((x) => ({ ...x, car: text }));
+      else if (topic) setF((x) => ({ ...x, car: x.car ? x.car : `${topic}: ` }));
       dlg.current?.showModal();
     };
     addEventListener(BOOK_EVENT, open);

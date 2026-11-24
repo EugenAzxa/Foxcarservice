@@ -100,6 +100,30 @@ h1 em, h2 em { font-style: normal; color: var(--accent); }
 .hq:hover { border-color: var(--accent); background: rgb(20 20 20 / 0.9); }
 .hq span { font-size: 13px; color: var(--text-2); line-height: 1.25; }
 .hq b { font: 800 17px/1.2 var(--display); color: var(--white); white-space: nowrap; }
+/* Поиск «Чем помочь?» (HeroSearch.tsx) */
+.hs { max-width: 860px; margin-top: 12px; }
+.hs-box { position: relative; display: flex; align-items: center; }
+.hs-box > svg { position: absolute; left: 16px; width: 20px; height: 20px; fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; pointer-events: none; }
+.hs-box input { width: 100%; min-height: 54px; padding: 0 48px 0 48px; font-size: 16px; color: var(--white); background: rgb(10 10 10 / 0.82); border: 1.5px solid rgb(255 255 255 / 0.22); border-radius: 12px; -webkit-appearance: none; appearance: none; transition: border-color 0.2s, box-shadow 0.2s; }
+.hs-box input::placeholder { color: #9a9a9a; }
+.hs-box input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgb(244 118 52 / 0.18); }
+.hs-box input::-webkit-search-cancel-button { display: none; }
+.hs-x { position: absolute; right: 4px; width: 44px; height: 44px; font-size: 24px; color: var(--steel); }
+.hs-sug { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.hs-sug button { min-height: 40px; padding: 0 14px; font-size: 14px; color: var(--text-2); background: rgb(10 10 10 / 0.72); border: 1px solid rgb(255 255 255 / 0.16); border-radius: 999px; }
+.hs-sug button:hover { border-color: var(--accent); color: var(--white); }
+.hs-res { margin-top: 8px; background: var(--shade); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.hs-res li + li { border-top: 1px solid var(--line); }
+.hs-it { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 4px 16px; width: 100%; min-height: 56px; padding: 10px 14px; text-align: left; transition: background 0.15s; }
+.hs-it:hover { background: rgb(244 118 52 / 0.1); }
+.hs-t { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.hs-t b { font-size: 15px; font-weight: 600; }
+.hs-t small { font-size: 12.5px; color: var(--steel); }
+.hs-p { font-weight: 800; white-space: nowrap; }
+.hs-go { padding: 6px 12px; font-size: 13px; font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 8px; white-space: nowrap; }
+.hs-it.art { grid-template-columns: minmax(0, 1fr) auto; }
+.hs-it.art .hs-go { color: var(--accent-hi); background: transparent; border: 1px solid rgb(244 118 52 / 0.5); }
+.hs-it.own { grid-template-columns: minmax(0, 1fr) auto; background: rgb(244 118 52 / 0.06); }
 .hf-rate a { display: flex; flex-direction: column; }
 .hero-facts .stars, .stars { color: var(--accent); font-size: 0.72em; letter-spacing: 0.08em; vertical-align: 0.12em; }
 .hero-facts { display: flex; gap: clamp(20px, 4vw, 56px); margin-top: 40px; flex-wrap: wrap; }
@@ -572,6 +596,9 @@ html[data-intro="skip"] .hero-in { animation-delay: 0.1s; }
   .hero::before { background: linear-gradient(0deg, var(--bg) 6%, rgb(10 10 10 / 0.82) 50%, rgb(10 10 10 / 0.3) 100%); }
   .hero .row .btn { flex: 1; }
   .hero-lead { display: none; }
+  .hs-it { grid-template-columns: minmax(0, 1fr) auto; }
+  .hs-it .hs-p { grid-column: 1; grid-row: 2; font-size: 14px; }
+  .hs-it .hs-go { grid-column: 2; grid-row: 1 / span 2; }
   .hero-quick { grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px; }
   .hq { min-height: 60px; padding: 8px 12px; }
   .hq b { font-size: 16px; }
