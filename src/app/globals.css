@@ -593,7 +593,8 @@ html[data-intro="skip"] .hero-in { animation-delay: 0.1s; }
   .map { min-height: 300px; }
   .xr-pin span { display: none; }
   .svc-cta .btn { flex: 1 1 100%; }
-  .hero::before { background: linear-gradient(0deg, var(--bg) 6%, rgb(10 10 10 / 0.82) 50%, rgb(10 10 10 / 0.3) 100%); }
+  .hero::before { background: linear-gradient(0deg, var(--bg) 6%, rgb(10 10 10 / 0.84) 50%, rgb(10 10 10 / 0.72) 78%, rgb(10 10 10 / 0.55) 100%); }
+  .hero .eyebrow { text-shadow: 0 1px 2px rgb(0 0 0 / 0.9), 0 0 18px rgb(0 0 0 / 0.85); }
   .hero .row .btn { flex: 1; }
   .hero-lead { display: none; }
   .hs-it { grid-template-columns: minmax(0, 1fr) auto; }
