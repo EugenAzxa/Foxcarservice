@@ -3,6 +3,7 @@
 // Админ добавляет новые в /admin (демо: хранится в этом браузере).
 import { useWorks } from "@/lib/demo";
 import { site } from "@/data/site";
+import Book from "./Book";
 
 const MONTHS = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
 const short = (d: string) => { const [, m, day] = d.split("-").map(Number); return `${day} ${MONTHS[m - 1]}`; };
@@ -27,6 +28,10 @@ export default function Works() {
           ))}
         </div>
         <a className="link works-more" href={site.org.replace(/\/$/, "") + "/gallery/"} target="_blank" rel="noreferrer">Все фото сервиса на Яндекс Картах →</a>
+        <div className="sec-cta">
+          <Book />
+          <span className="muted">Покажем, что нашли, прямо на подъёмнике</span>
+        </div>
       </div>
     </section>
   );

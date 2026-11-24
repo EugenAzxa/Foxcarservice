@@ -1,11 +1,10 @@
 "use client";
 // Услуги на машине: клиент нажимает на узел (двигатель, колесо, подвеска...)
-// и видит, что именно чиним и сколько стоит. Точки — из services.ts (pin x/y
-// в процентах кадра hero.jpg). Ниже те же узлы вкладками, для телефона и
+// и видит, что именно чиним и сколько стоит. Машина = силуэт из логотипа FOX
+// (слои public/brand/logo-car.png и logo-fox.png), точки — из services.ts (pin x/y в %). Ниже те же узлы вкладками, для телефона и
 // клавиатуры. Цены берутся из services.ts с правками демо-админки поверх.
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import Book from "./Book";
 import { rub, zones } from "@/data/services";
 import { priceOf, usePrices } from "@/lib/demo";
 
@@ -32,9 +31,10 @@ export default function Prices() {
         <div className="car-map">
           <div className="car-col">
           <div className="car">
-            <Image src="/photo/hero.jpg" alt="Схема услуг на автомобиле" fill sizes="(max-width: 900px) 100vw, 60vw" />
+            <i className="car-body" role="img" aria-label="Схема узлов автомобиля" />
+            <i className="car-fox" aria-hidden="true" />
             <svg className="car-ring" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <ellipse cx={z.pin.x} cy={z.pin.y} rx="9" ry="13" />
+              <ellipse cx={z.pin.x} cy={z.pin.y} rx="6" ry="17" />
             </svg>
             {zones.map((x) => (
               <button
@@ -78,7 +78,7 @@ export default function Prices() {
                 );
               })}
             </ul>
-            <Link className="btn" href={`/app?service=${encodeURIComponent(z.services[0].name)}`}>Записаться: {z.label.toLowerCase()}</Link>
+            <Book topic={z.title}>Записаться: {z.label.toLowerCase()}</Book>
           </div>
         </div>
 

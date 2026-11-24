@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { site } from "@/data/site";
 import { aspects, reviewPhotos, reviews, type Review } from "@/data/reviews";
+import Book from "./Book";
 
 const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 const ruDate = (d: string) => { const [y, m, day] = d.split("-").map(Number); return `${day} ${MONTHS[m - 1]} ${y}`; };
@@ -112,6 +113,11 @@ export default function Reviews() {
       <div className="mq">
         <Row items={a} onOpen={setOpen} offset={0} />
         <Row items={b} reverse onOpen={setOpen} offset={1} />
+      </div>
+
+      <div className="wrap sec-cta">
+        <Book />
+        <span className="muted">Перезвоним и подберём удобное время</span>
       </div>
 
       <dialog

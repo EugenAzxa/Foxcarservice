@@ -3,7 +3,9 @@ import Booking from "@/components/Booking";
 
 export const metadata: Metadata = {
   title: "Запись в FOX Car Service",
-  description: "Свободные окна на двух подъёмниках и онлайн-запись в автосервис FOX в Лисьем Носу.",
+  description: "Внутренний инструмент записи FOX Car Service.",
+  // Для сотрудников: с сайта не ссылаемся, в поиск не отдаём.
+  robots: { index: false, follow: false },
 };
 
 export default function AppPage() {

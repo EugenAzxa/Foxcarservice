@@ -1,12 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { site } from "@/data/site";
+import { heroImage, site } from "@/data/site";
 import OpenNow from "./OpenNow";
 import Reviews from "./Reviews";
 import Prices from "./Prices";
 import Works from "./Works";
-import Install from "./Install";
-import HeroIntro from "./HeroIntro";
+import Intro from "./Intro";
+import Logo from "./Logo";
+import Book from "./Book";
+import LeadDialog from "./LeadDialog";
+import Messengers from "./Messengers";
 
 // Только то, что подтверждено карточкой Яндекса и отзывами клиентов.
 const perks = [
@@ -19,48 +22,62 @@ const perks = [
 ];
 
 const steps = [
-  ["Записываетесь", "В приложении видно свободные окна на двух подъёмниках. Или просто позвоните."],
+  ["Оставляете заявку", "Оставляете заявку на сайте или пишете нам в мессенджер. Перезваниваем и договариваемся о времени."],
   ["Смотрим на подъёмнике", "Компьютерная диагностика и осмотр. Показываем, что нашли, прямо на машине."],
   ["Согласуем смету", "Делим на «срочно» и «может подождать». Итоговую сумму согласуем до начала работ."],
   ["Ремонтируем и отдаём", "Рассказываем, что сделали, и что стоит посмотреть в следующий визит."],
 ];
 
 const faq = [
-  ["Нужно ли записываться заранее?", "Лучше да: постов всего два, удобное время стоит занять заранее. В приложении видно свободное время. Если что-то срочное, позвоните, постараемся принять в тот же день."],
+  ["Нужно ли записываться заранее?", "Лучше да: постов всего два. Оставьте заявку на сайте или напишите в Telegram, WhatsApp или MAX, и мы подберём удобное время. Если что-то срочное, позвоните: постараемся принять в тот же день."],
   ["Можно приехать со своими запчастями?", "Обсудите это с мастером при записи. Можем и сами подобрать детали под вашу машину и заказать их в сервис."],
   ["Какая диагностика есть?", "Компьютерная диагностика, осмотр на подъёмнике, эндоскопия двигателя. Стоимость назовём по телефону."],
   ["Как оплатить?", "Картой, наличными или банковским переводом."],
   ["Где подождать, пока делают машину?", "В зоне ожидания: кондиционер, напитки, приставка и экран с камерами постов, чтобы видеть свою машину."],
 ];
 
+const phoneIc = "M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2Z";
+
+function Cta({ note = "Перезвоним и подберём удобное время" }: { note?: string }) {
+  return (
+    <div className="sec-cta">
+      <Book />
+      <span className="muted">{note}</span>
+    </div>
+  );
+}
+
 export default function Sections() {
   return (
     <>
+      <Intro />
+
       <header className="top">
-        <a className="logo" href="#top" aria-label="FOX Car Service, наверх">
-          <svg className="logo-hex" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 20.2 7.2v9.6L12 21.5 3.8 16.8V7.2z" /></svg>
-          {site.brand}<small>{site.brandSub}</small>
-        </a>
+        <a className="top-logo" href="#top" aria-label="FOX Car Service, наверх"><Logo /></a>
         <nav aria-label="Разделы">
           <a href="#uslugi">Услуги</a>
           <a href="#reviews">Отзывы</a>
           <a href="#raboty">Работы</a>
-          <a href="#app">Приложение</a>
+          <a href="#kak">Как работаем</a>
           <a href="#route">Контакты</a>
         </nav>
         <a className="tel" href={site.phoneHref}>{site.phone}</a>
-        <Link className="btn sm" href="/app">Записаться</Link>
+        <a className="tel-ic" href={site.phoneHref} aria-label={`Позвонить ${site.phone}`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d={phoneIc} /></svg></a>
+        <Book className="btn sm top-book" />
       </header>
 
       <section className="hero" id="top">
-        <Image className="hero-img" src="/photo/hero.jpg" alt="BMW M3 в боксе FOX Car Service" fill priority sizes="100vw" />
-        <HeroIntro />
+        <picture className="hero-img">
+          <source media="(max-width: 760px)" srcSet={`${heroImage.mobile.replace(".jpg", "-720.jpg")} 720w, ${heroImage.mobile} 1080w`} sizes="100vw" />
+          <source srcSet={`${heroImage.desktop.replace(".jpg", "-1600.jpg")} 1600w, ${heroImage.desktop} 2560w`} sizes="100vw" />
+          <img src={heroImage.desktop} alt={heroImage.alt} fetchPriority="high" decoding="async" />
+        </picture>
         <div className="wrap hero-in">
           <p className="eyebrow">Автосервис в Лисьем Носу · 2 подъёмника</p>
           <h1>Ремонт и ТО <em>без сюрпризов в&nbsp;счёте</em></h1>
           <p className="lead">Показываем поломку прямо на подъёмнике и согласуем смету до начала работ. Двигатель, ходовая, тормоза, ТО, шиномонтаж и аквабласт.</p>
           <div className="row">
-            <Link className="btn" href="/app">Выбрать время</Link>
+            <Book />
             <a className="btn ghost" href={site.phoneHref}>{site.phone}</a>
           </div>
           <ul className="hero-facts">
@@ -87,6 +104,7 @@ export default function Sections() {
           <div className="perks">
             {perks.map(([t, d]) => <div key={t}><h3>{t}</h3><p>{d}</p></div>)}
           </div>
+          <Cta />
         </div>
       </section>
 
@@ -95,35 +113,11 @@ export default function Sections() {
       <section className="sec alt" id="kak">
         <div className="wrap">
           <p className="eyebrow">Как работаем</p>
-          <h2>Четыре шага <em>от записи до выдачи</em></h2>
+          <h2>Четыре шага <em>от заявки до выдачи</em></h2>
           <ol className="steps">
             {steps.map(([t, d], i) => <li key={t}><span>{String(i + 1).padStart(2, "0")}</span><h3>{t}</h3><p>{d}</p></li>)}
           </ol>
-        </div>
-      </section>
-
-      <section className="sec app-promo" id="app">
-        <div className="wrap app-in">
-          <div>
-            <p className="eyebrow">Приложение FOX</p>
-            <h2>Запись <em>в два касания</em></h2>
-            <p className="lead">Свободные окна на обоих подъёмниках, запись на нужное время и список ваших визитов. Ставится на телефон и на компьютер прямо с сайта, без магазинов приложений.</p>
-            <div className="row">
-              <Install />
-              <Link className="btn ghost" href="/app">Открыть в браузере</Link>
-            </div>
-          </div>
-          <div className="phone" aria-hidden="true">
-            <div className="phone-scr">
-              <b>Свободно завтра</b>
-              <div className="phone-grid">
-                {["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"].map((t, i) => (
-                  <span key={t} className={[1, 4, 5].includes(i) ? "busy" : ""}>{t}</span>
-                ))}
-              </div>
-              <span className="phone-btn">Записаться на 12:00</span>
-            </div>
-          </div>
+          <Cta note="Или напишите в Telegram, WhatsApp, MAX" />
         </div>
       </section>
 
@@ -134,13 +128,14 @@ export default function Sections() {
           <div className="faq">
             {faq.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}
           </div>
+          <Cta note="Остались вопросы? Ответим по телефону или в мессенджере" />
         </div>
       </section>
 
       <section className="sec alt" id="route">
         <div className="wrap route">
           <div>
-            <p className="eyebrow">Как доехать</p>
+            <p className="eyebrow">Контакты</p>
             <h2>Лисий Нос, Большой проспект, 10</h2>
             <dl>
               <dt>Адрес</dt><dd>{site.address}</dd>
@@ -149,24 +144,37 @@ export default function Sections() {
               <dt>Телефон</dt><dd><a href={site.phoneHref}>{site.phone}</a></dd>
             </dl>
             <div className="row">
-              <a className="btn" href={site.route} target="_blank" rel="noreferrer">Построить маршрут</a>
-              <a className="btn ghost" href={site.whatsapp} target="_blank" rel="noreferrer">WhatsApp</a>
+              <Book />
+              <a className="btn ghost" href={site.route} target="_blank" rel="noreferrer">Построить маршрут</a>
             </div>
+            <p className="route-msg muted">Пишите в мессенджер:</p>
+            <Messengers call={false} />
           </div>
           <iframe className="map" src={site.mapWidget} title="FOX на карте" loading="lazy" />
         </div>
       </section>
 
       <footer className="foot">
-        <div className="wrap row between">
-          <span className="logo">{site.brand}<small>{site.brandSub}</small></span>
-          <span className="muted">{site.address}</span>
-          <a href={site.phoneHref}>{site.phone}</a>
-          <Link className="link" href="/admin">Для сотрудников</Link>
+        <div className="wrap foot-in">
+          <Logo className="foot-logo" />
+          <div className="foot-col">
+            <span className="muted">{site.address}</span>
+            <a href={site.phoneHref}>{site.phone}</a>
+          </div>
+          <div className="foot-col">
+            <Link className="link" href="/privacy">Политика конфиденциальности</Link>
+            <Link className="link" href="/soglasie">Согласие на обработку данных</Link>
+            <Link className="link" href="/admin">Для сотрудников</Link>
+          </div>
         </div>
       </footer>
 
-      <Link className="fab" href="/app">Записаться</Link>
+      <div className="fab">
+        <Book className="btn fab-book" />
+        <a className="btn fab-call" href={site.phoneHref} aria-label={`Позвонить ${site.phone}`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d={phoneIc} /></svg></a>
+      </div>
+
+      <LeadDialog />
     </>
   );
 }

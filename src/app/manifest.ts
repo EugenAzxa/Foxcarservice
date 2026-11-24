@@ -1,26 +1,23 @@
 import type { MetadataRoute } from "next";
 
-// Веб-приложение FOX: ставится на телефон и компьютер из браузера (Chrome, Edge, Safari).
+// Сайт FOX можно добавить на экран телефона из браузера. Открывается главная.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    id: "/app",
-    name: "FOX Car Service — запись",
+    id: "/",
+    name: "FOX Car Service",
     short_name: "FOX",
-    description: "Свободные окна на подъёмниках и запись в автосервис FOX в Лисьем Носу.",
-    start_url: "/app",
+    description: "Автосервис FOX в Лисьем Носу: ремонт, ТО, шиномонтаж. Запись по заявке и в мессенджерах.",
+    start_url: "/",
     scope: "/",
     display: "standalone",
-    background_color: "#0a0d12",
-    theme_color: "#0a0d12",
+    background_color: "#0a0a0a",
+    theme_color: "#0a0a0a",
     lang: "ru",
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
       { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
-      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/icon-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
-    shortcuts: [
-      { name: "Записаться", url: "/app" },
-      { name: "Позвонить", url: "tel:+79533702010" },
-    ],
+    shortcuts: [{ name: "Позвонить", url: "tel:+79533702010" }],
   };
 }
